@@ -93,19 +93,23 @@ func CreateRoutesWithClusters(mgwSwagger model.MgwSwagger, interceptorCerts map[
 		interceptorCerts, vHost, organizationID)
 	clusters = append(clusters, clustersI...)
 	endpoints = append(endpoints, endpointsI...)
-
+	// TODO: (lahirude@wso2.com) Remove this temporary cluster dedup logic after the load tests.
+	clusterCreated := false
 	for _, resource := range mgwSwagger.GetResources() {
 		resourcePath := resource.GetPath()
 		endpoint := resource.GetEndpoints()
 		basePath := strings.TrimSuffix(endpoint.Endpoints[0].Basepath, "/")
-		clusterName := getClusterName(endpoint.EndpointPrefix, organizationID, vHost, mgwSwagger.GetTitle(), apiVersion, resource.GetID())
+		clusterName := getClusterName(endpoint.EndpointPrefix, organizationID, vHost, mgwSwagger.GetTitle(), apiVersion, "")
 		cluster, address, err := processEndpoints(clusterName, endpoint, timeout, basePath)
 		if err != nil {
 			logger.LoggerOasparser.Errorf("Error while adding resource level endpoints for %s:%v-%v. %v",
 				apiTitle, apiVersion, resourcePath, err.Error())
 		} else {
-			clusters = append(clusters, cluster)
+			if !clusterCreated {
+				clusters = append(clusters, cluster)
 			endpoints = append(endpoints, address...)
+			clusterCreated = true
+			}
 		}
 
 		// Create resource level interceptor clusters if required
