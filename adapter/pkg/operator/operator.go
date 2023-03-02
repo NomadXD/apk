@@ -112,7 +112,9 @@ func InitOperator() {
 	}
 
 	// TODO: Decide on a buffer size and add to config.
-	ch := make(chan synchronizer.APIEvent, 10)
+	ch := make(chan synchronizer.APIEvent, 1000)
+	// TODO: (lahirude@wso2.com) Remove this log after the load tests.
+	loggers.LoggerAPKOperator.Infof("controller-sync channel size: %v", 1000)
 
 	updateHandler := status.NewUpdateHandler(mgr.GetClient())
 	if err := mgr.Add(updateHandler); err != nil {
