@@ -21,7 +21,7 @@ import (
 	"context"
 	"fmt"
 
-    core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 	"github.com/wso2/apk/adapter/internal/discovery/xds/common"
 	logger "github.com/wso2/apk/adapter/internal/loggers"
@@ -76,6 +76,14 @@ func (cb *Callbacks) OnStreamRequest(id int64, request *discovery.DiscoveryReque
 func (cb *Callbacks) OnStreamResponse(context context.Context, id int64, request *discovery.DiscoveryRequest,
 	response *discovery.DiscoveryResponse) {
 	nodeIdentifier := common.GetNodeIdentifier(request)
+	if request.ErrorDetail != nil {
+		logger.LoggerRouterXdsCallbacks.ErrorC(logging.ErrorDetails{
+			Message: fmt.Sprintf("Stream response for type %s on stream id: %d, from node: %s, Error: %s", request.GetTypeUrl(),
+				id, nodeIdentifier, request.ErrorDetail.Message),
+			Severity:  logging.CRITICAL,
+			ErrorCode: 1401,
+		})
+	}
 	logger.LoggerRouterXdsCallbacks.Debugf("stream response on stream id: %d, to node: %s, version: %s, for type: %v", id,
 		nodeIdentifier, response.VersionInfo, response.TypeUrl)
 }
