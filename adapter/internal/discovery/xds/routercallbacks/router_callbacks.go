@@ -78,8 +78,8 @@ func (cb *Callbacks) OnStreamResponse(context context.Context, id int64, request
 	nodeIdentifier := common.GetNodeIdentifier(request)
 	if request.ErrorDetail != nil {
 		logger.LoggerRouterXdsCallbacks.ErrorC(logging.ErrorDetails{
-			Message: fmt.Sprintf("Stream response for type %s on stream id: %d, from node: %s, Error: %s", request.GetTypeUrl(),
-				id, nodeIdentifier, request.ErrorDetail.Message),
+			Message: fmt.Sprintf("Stream response for type %s on stream id: %d, from node: %s, Response: %s", request.GetTypeUrl(),
+				id, nodeIdentifier, response.GetResources()),
 			Severity:  logging.CRITICAL,
 			ErrorCode: 1401,
 		})
